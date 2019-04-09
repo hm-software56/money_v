@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "1038203601636",
+    "firebase_url": "https://money-b2fdc.firebaseio.com",
+    "project_id": "money-b2fdc",
+    "storage_bucket": "money-b2fdc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038203601636:android:ec005f6bbd85bb47",
+        "android_client_info": {
+          "package_name": "com.hmsoftware.money"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkWwIG_Ti5-Qiup4aHzQeXQv-5zSf9Cyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038203601636-p0p9biv4m9lff4sirkeh3eqsoakjakdv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
