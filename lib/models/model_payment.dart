@@ -1,5 +1,5 @@
 class ModelPayment{
   bool isloading=false;
-  Map listpayment={};
+  var type_pay='';
   var user_id;
 }

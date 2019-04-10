@@ -284,7 +284,7 @@ class _HomeState extends State<Home> {
             trailing: Icon(Icons.accessible),
             onTap: () {
               // Navigator.of(context).pushNamed('/listhouseuser');
-              Navigator.of(context).pushNamed('/recive');
+             // Navigator.of(context).pushNamed('/recive');
             },
           ),
           Divider(),
@@ -303,7 +303,7 @@ class _HomeState extends State<Home> {
             ),
             trailing: Icon(Icons.local_taxi),
             onTap: () {
-              Navigator.of(context).pushNamed('/daocar');
+             /// Navigator.of(context).pushNamed('/daocar');
             },
           ),
           Divider(),
@@ -322,7 +322,7 @@ class _HomeState extends State<Home> {
             ),
             trailing: Icon(Icons.bubble_chart),
             onTap: () {
-              Navigator.of(context).pushNamed('/reportrecive');
+             // Navigator.of(context).pushNamed('/reportrecive');
             },
           ),
           Divider(),
@@ -342,7 +342,7 @@ class _HomeState extends State<Home> {
             trailing: Icon(Icons.insert_chart),
             onTap: () {
               // Navigator.of(context).pushNamed('/listhouseuser');
-              Navigator.of(context).pushNamed('/reportpayment');
+           //   Navigator.of(context).pushNamed('/reportpayment');
             },
           ),
         ],

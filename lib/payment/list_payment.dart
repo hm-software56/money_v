@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moneyv3/home.dart';
 import 'package:moneyv3/models/model_payment.dart';
+import 'package:moneyv3/models/model_user.dart';
 
 class ListPayment extends StatefulWidget {
   @override
@@ -10,29 +11,35 @@ class ListPayment extends StatefulWidget {
 }
 
 class _ListPaymentState extends State<ListPayment> {
-  ModelPayment model_payment=ModelPayment();
-  /*========================== Loading data ================= */
-  Future loadlistpayment() async {
-    CollectionReference collectionReference =
-        await Firestore.instance.collection('bandnames').reference();
-    collectionReference
-        .snapshots()
-        .listen((data) {
-      print('on snapshot');
-      data.documents.forEach((talk) {
-        Map list_p={'id':talk.documentID,'type':talk['type']};
-        model_payment.listpayment.addAll(list_p);
-       // print(talk.documentID + ': ' + talk['name']);
+  ModelPayment model_payment = ModelPayment();
+  ModelUser model_user = ModelUser();
+
+  void selectType(doc_id) async {
+    DocumentSnapshot snapshot =
+        await Firestore.instance.collection('type_pay').document(doc_id).get();
+    if (mounted) {
+      setState(() {
+        model_payment.type_pay = snapshot['name'];
       });
-    });
-    print(model_payment.listpayment);
+    }
   }
-  
+
+  Future selectUser(user_id) async {
+    DocumentSnapshot snapshot =
+        await Firestore.instance.collection('user').document(user_id).get();
+    return snapshot['photo'];
+    /* if (mounted) {
+      setState(() {
+        model_user.photo = snapshot['photo'];
+      });
+    }*/
+  }
+
   @override
   void initState() {
     super.initState();
-    loadlistpayment();
   }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -45,137 +52,93 @@ class _ListPaymentState extends State<ListPayment> {
             }),
       ),
       body: Container(
-          padding: const EdgeInsets.all(5.0),
-          alignment: Alignment.center,
-          child: RefreshIndicator(
-            onRefresh: loadlistpayment,
-            child: model_payment.isloading
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : ListView.builder(
-                    itemCount: model_payment.listpayment != null ? model_payment.listpayment.length : 0,
-                    itemBuilder: (BuildContext context, int index) {
-                      final formatter = new NumberFormat("#,###.00");
-                      // listpayment[index]['amount']
-                      return new Column(
+        padding: const EdgeInsets.all(5.0),
+        alignment: Alignment.center,
+        child: StreamBuilder(
+            stream: Firestore.instance.collection('payment').snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return Text('Laoding..........');
+              return ListView.builder(
+                  //itemExtent: 50,
+                  itemCount: snapshot.data.documents.length,
+                  itemBuilder: (context, index) {
+                    final formatter = new NumberFormat("#,###.00");
+                    selectType(snapshot.data.documents[index]['type_pay_id']
+                        .toString());
+                    var 'photo$index';
+                    var docRef= Firestore.instance.collection('user').document(snapshot.data.documents[index]['user'].toString());
+                    docRef.get().then((doc){
+                      setState(() {
+                         'photo$index'= doc.data['photo'];
+                        });
+                    });
+                    print('photo$index');
+                    
+                    return ListTile(
+                      leading: SizedBox(
+                          width: 60.0,
+                          height: 60.0,
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(
+                                ('photo$index'!= null)?'photo$index': ''),
+                          )),
+                      title: Text(
+                        model_payment.type_pay,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                            color: Colors.black),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          new ListTile(
-                            leading: SizedBox(
-                                width: 60.0,
-                                height: 60.0,
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(''),
-                                )),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                IntrinsicHeight(
-                                  child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                model_payment.listpayment[index]['typePay']
-                                                    ['name'],
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14.0,
-                                                    color: Colors.black),
-                                              ),
-                                              Text(
-                                                formatter.format(int.parse(
-                                                        model_payment.listpayment[index]
-                                                            ['amount'])) +
-                                                    ' ກີບ',
-                                                style: TextStyle(
-                                                    color: Colors.red),
-                                              ),
-                                              Text(
-                                                model_payment.listpayment[index]
-                                                    ['description'],
-                                                overflow: TextOverflow.ellipsis,
-                                                softWrap: true,
-                                                maxLines: 2,
-                                              ),
-                                              Text(
-                                                model_payment.listpayment[index]['date'],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        model_payment.user_id !=
-                                                int.parse(model_payment.listpayment[index]
-                                                    ['user_id'])
-                                            ? Text('')
-                                            : SizedBox(
-                                                width: 30.0,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: <Widget>[
-                                                    IconButton(
-                                                      icon: Icon(
-                                                        Icons.border_color,
-                                                        color: Colors.green,
-                                                      ),
-                                                      onPressed: () {
-                                                      /*  Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                fullscreenDialog:
-                                                                    true,
-                                                                builder: (context) =>
-                                                                    FormPayment(
-                                                                        listpayment[index]
-                                                                            [
-                                                                            'id'])));*/
-                                                      },
-                                                    ),
-                                                    IconButton(
-                                                      icon: Icon(
-                                                        Icons
-                                                            .remove_circle_outline,
-                                                        color: Colors.red,
-                                                      ),
-                                                      onPressed: () {
-                                                      /*  delcomfirm(
-                                                            'ແຈ້ງ​ເຕືອນ',
-                                                            'ທ່ານ​ຕ້ອງ​ການ​ລຶບ​ລາຍ​ການນີ້​ແມ​່ນ​ບໍ.?',
-                                                            listpayment[index]
-                                                                ['id']);*/
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                      ]),
+                          Text(
+                            formatter.format(int.parse(snapshot
+                                    .data.documents[index]['amount']
+                                    .toString())) +
+                                ' ກີບ',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          Text(
+                            snapshot.data.documents[index]['description'],
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            maxLines: 2,
+                          ),
+                          Text(
+                            snapshot.data.documents[index]['date'],
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Colors.red,
+                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              Expanded(
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.remove_circle,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          new Divider(
-                            height: 2.0,
-                          ),
+                          Divider()
                         ],
-                      );
-                    },
-                  ),
-          )),
+                      ),
+                      onTap: () {
+                        //print(document.documentID);
+                        //uploadPic();
+                      },
+                    );
+                  });
+            }),
+      ),
       floatingActionButton: new FloatingActionButton(
           backgroundColor: Colors.red,
           child: new Icon(Icons.add_circle),
