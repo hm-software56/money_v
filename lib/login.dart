@@ -43,6 +43,7 @@ class _LoginState extends State<Login> {
           );
         });
   }
+
   /*=========================== action Login =====================*/
   Future actionLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -55,7 +56,7 @@ class _LoginState extends State<Login> {
         .snapshots()
         .listen((data) {
       if (data.documents.isEmpty) {
-          alert("ຊື່​ເຂົ້າ​ລະ​ບົບ ຫຼື ລະ​ຫັດ​ຜ່ານ​ບໍ​ຖືກ​ຕ້ອງ");
+        alert("ຊື່​ເຂົ້າ​ລະ​ບົບ ຫຼື ລະ​ຫັດ​ຜ່ານ​ບໍ​ຖືກ​ຕ້ອງ");
       } else {
         data.documents.forEach((talk) {
           prefs.setString('token', talk.documentID);
@@ -76,79 +77,82 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          //title: Center(child: Text("ລະ​ບົບ​ເກັບ​ກຳ​ເງີນ")),
+          title: Center(child: Text("ລະ​ບົບ​ເກັບ​ກຳ​ເງີນ")),
           ),
       body: Form(
         key: _formKey,
         child: Container(
           padding: EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: ListView(
             children: <Widget>[
-              ClipRRect(
-                borderRadius: new BorderRadius.circular(8.0),
-                child: Image.network(
-                  'https://image.shutterstock.com/z/stock-vector-blue-house-icon-in-vector-1244227747.jpg',
-                  height: 50.0,
-                  width: 50.0,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ClipRRect(
+                  borderRadius: new BorderRadius.circular(8.0),
+                  child: Image.network(
+                    'https://image.shutterstock.com/z/stock-vector-blue-house-icon-in-vector-1244227747.jpg',
+                    height: 50.0,
+                    width: 50.0,
+                  ),
                 ),
-              ),
-              TextFormField(
-                controller: modellogin.username,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'ທ່ານ​ຕ​້ອງປ້ອນຊື່​ເຂົ້າ​ລະ​ບົບ';
-                  }
-                },
-                decoration: InputDecoration(
-                  hintText: "ຊື່​ເຂົ້າ​ລະ​ບົບ",
-                  labelText: "ຊື່​ເຂົ້າ​ລະ​ບົບ",
+                TextFormField(
+                  controller: modellogin.username,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'ທ່ານ​ຕ​້ອງປ້ອນຊື່​ເຂົ້າ​ລະ​ບົບ';
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: "ຊື່​ເຂົ້າ​ລະ​ບົບ",
+                    labelText: "ຊື່​ເຂົ້າ​ລະ​ບົບ",
+                  ),
                 ),
-              ),
-              TextFormField(
-                controller: modellogin.password,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return "ທ່ານ​ຕ້ອງ​ປ້​ອນ​ລະ​ຫັດ​ຜ່ານ";
-                  }
-                },
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: "​ປ້ອ​ນລະ​ຫັດ​ຜ່ານ",
-                  labelText: "ລະ​ຫັດ​ຜ່ານ",
+                TextFormField(
+                  controller: modellogin.password,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return "ທ່ານ​ຕ້ອງ​ປ້​ອນ​ລະ​ຫັດ​ຜ່ານ";
+                    }
+                  },
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: "​ປ້ອ​ນລະ​ຫັດ​ຜ່ານ",
+                    labelText: "ລະ​ຫັດ​ຜ່ານ",
+                  ),
                 ),
-              ),
-              SizedBox(
-                  width: double.infinity,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: loading
-                        ? Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : RaisedButton.icon(
-                            icon: Icon(
-                              Icons.lock_open,
-                              color: Colors.white,
+                SizedBox(
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: loading
+                          ? Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : RaisedButton.icon(
+                              icon: Icon(
+                                Icons.lock_open,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                'ເຂົ້າ​ລະ​ບົບ',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              key: null,
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  actionLogin();
+                                }
+                              },
+                              color: Colors.red,
                             ),
-                            label: Text(
-                              'ເຂົ້າ​ລະ​ບົບ',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            key: null,
-                            onPressed: () {
-                              if (_formKey.currentState.validate()) {
-                                actionLogin();
-                              }
-                            },
-                            color: Colors.red,
-                          ),
-                  )),
-            ],
-          ),
+                    )),
+              ],
+            ),
+          ]),
         ),
       ),
     );

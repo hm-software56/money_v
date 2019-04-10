@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:moneyv3/models/model_user.dart';
+import 'package:moneyv3/payment/list_payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -93,7 +94,6 @@ class _HomeState extends State<Home> {
     }
   }
 
-
   void loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -105,7 +105,7 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
     loadData();
   }
@@ -126,42 +126,45 @@ class _HomeState extends State<Home> {
                     child: Column(
                       children: <Widget>[
                         Text(
-                          'Change photo profile backgroud',
+                          'ປ່ຽນ​ພາບ​ພື້ນຫຼັງ',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Row(
-                          children: <Widget>[
-                            OutlineButton.icon(
-                              label: Text('GALLERY',
-                                  style: TextStyle(
-                                      fontSize: 10.0, color: Colors.black)),
-                              icon: Icon(
-                                Icons.image,
-                                color: Colors.red,
-                              ),
-                              onPressed: () {
-                                 getImageBGProfile('gallery');
-
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 10.0),
-                              child: OutlineButton.icon(
-                                label: Text('CAMERA',
-                                    style: TextStyle(fontSize: 10.0)),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: <Widget>[
+                              OutlineButton.icon(
+                                label: Text('GALLERY',
+                                    style: TextStyle(
+                                        fontSize: 10.0, color: Colors.black)),
                                 icon: Icon(
-                                  Icons.camera,
+                                  Icons.image,
                                   color: Colors.red,
                                 ),
                                 onPressed: () {
-                                  getImageBGProfile('camera');
+                                  getImageBGProfile('gallery');
 
                                   Navigator.of(context).pop();
                                 },
                               ),
-                            )
-                          ],
+                              Padding(
+                                padding: EdgeInsets.only(left: 10.0),
+                                child: OutlineButton.icon(
+                                  label: Text('CAMERA',
+                                      style: TextStyle(fontSize: 10.0)),
+                                  icon: Icon(
+                                    Icons.camera,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    getImageBGProfile('camera');
+
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -169,7 +172,7 @@ class _HomeState extends State<Home> {
             },
             decoration: BoxDecoration(
               image: DecorationImage(
-                  image:model_user.photo_bg == null
+                  image: model_user.photo_bg == null
                       ? AssetImage('assets/img/bg.jpg')
                       : NetworkImage(model_user.photo_bg),
                   fit: BoxFit.fill),
@@ -187,39 +190,43 @@ class _HomeState extends State<Home> {
                               'ປ່​ຽນ​ຮູບ​ໂປ​ຣ​ໄຟ​ຣ',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            Row(
-                              children: <Widget>[
-                                OutlineButton.icon(
-                                  label: Text('GALLERY',
-                                      style: TextStyle(
-                                          fontSize: 10.0, color: Colors.black)),
-                                  icon: Icon(
-                                    Icons.image,
-                                    color: Colors.blue,
-                                  ),
-                                  onPressed: () {
-                                    getImageProfile('gallery');
-
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10.0),
-                                  child: OutlineButton.icon(
-                                    label: Text('CAMERA',
-                                        style: TextStyle(fontSize: 10.0)),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: <Widget>[
+                                  OutlineButton.icon(
+                                    label: Text('GALLERY',
+                                        style: TextStyle(
+                                            fontSize: 10.0,
+                                            color: Colors.black)),
                                     icon: Icon(
-                                      Icons.camera,
+                                      Icons.image,
                                       color: Colors.blue,
                                     ),
                                     onPressed: () {
-                                      getImageProfile('camera');
+                                      getImageProfile('gallery');
 
                                       Navigator.of(context).pop();
                                     },
                                   ),
-                                )
-                              ],
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 10.0),
+                                    child: OutlineButton.icon(
+                                      label: Text('CAMERA',
+                                          style: TextStyle(fontSize: 10.0)),
+                                      icon: Icon(
+                                        Icons.camera,
+                                        color: Colors.blue,
+                                      ),
+                                      onPressed: () {
+                                        getImageProfile('camera');
+
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -229,13 +236,15 @@ class _HomeState extends State<Home> {
                     backgroundImage: model_user.photo == null
                         ? AssetImage('assets/img/user.jpg')
                         : NetworkImage(model_user.photo))),
-            accountName: Text(model_user.first_name,
+            accountName: Text(
+              model_user.first_name,
               style: TextStyle(
                   fontSize: 25.0,
                   fontWeight: FontWeight.bold,
                   color: Colors.white),
             ),
-            accountEmail: Text(model_user.last_name,
+            accountEmail: Text(
+              model_user.last_name,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -254,9 +263,8 @@ class _HomeState extends State<Home> {
             ),
             trailing: Icon(Icons.accessible_forward),
             onTap: () {
-              //Navigator.pushReplacement(
-              //  context, MaterialPageRoute(builder: (context) => ListPayment()));
-              Navigator.of(context).pushNamed('/payment');
+              Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => ListPayment()));
             },
           ),
           Divider(),
