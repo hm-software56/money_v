@@ -27,17 +27,54 @@ class _ListPaymentState extends State<ListPayment> {
   Future selectUser(user_id) async {
     DocumentSnapshot snapshot =
         await Firestore.instance.collection('user').document(user_id).get();
-    return snapshot['photo'];
-    /* if (mounted) {
+    //return snapshot['photo'];
+    if (mounted) {
       setState(() {
         model_user.photo = snapshot['photo'];
       });
-    }*/
+    }
+  }
+
+  Future selectbycondition() async {
+    CollectionReference collectionReference =
+        await Firestore.instance.collection('payment').reference();
+    collectionReference.snapshots().listen((data) {
+      data.documents.forEach((talk) {
+        var docRef = Firestore.instance
+            .collection('user')
+            .document(talk['user'].toString());
+        docRef.get().then((doc) {
+          var data = doc.documentID + ":" + doc.data['photo'];
+          model_payment.lsituser.add(data);
+          print(model_payment.lsituser);
+
+          setState(() {
+            model_payment.lsituser = model_payment.lsituser;
+          });
+        });
+        // print(talk.documentID + ': ' + talk['user']);
+      });
+    });
+
+    print(model_payment.lsituser);
   }
 
   @override
   void initState() {
     super.initState();
+   // selectbycondition();
+  }
+var list = await Future.wait();
+  leading(user_id) async {
+    DocumentSnapshot snapshot =
+        await Firestore.instance.collection('bandnames').document(user_id).get();
+     SizedBox(
+        width: 60.0,
+        height: 60.0,
+        child: CircleAvatar(
+          backgroundImage:
+              NetworkImage((snapshot['photo']!= null) ? snapshot['photo']: ''),
+        ));
   }
 
   Widget build(BuildContext context) {
@@ -63,25 +100,23 @@ class _ListPaymentState extends State<ListPayment> {
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, index) {
                     final formatter = new NumberFormat("#,###.00");
-                    selectType(snapshot.data.documents[index]['type_pay_id']
-                        .toString());
-                    var 'photo$index';
+                    // selectType(snapshot.data.documents[index]['type_pay_id']
+                    //    .toString());
+
+                    // selectUser(snapshot.data.documents[index]['user']
+                    //   .toString());
+                    /*  var 'photo$index';
                     var docRef= Firestore.instance.collection('user').document(snapshot.data.documents[index]['user'].toString());
                     docRef.get().then((doc){
                       setState(() {
                          'photo$index'= doc.data['photo'];
                         });
                     });
-                    print('photo$index');
-                    
+                    print('photo$index');*/
+                    //print(model_user.photo);
                     return ListTile(
-                      leading: SizedBox(
-                          width: 60.0,
-                          height: 60.0,
-                          child: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                ('photo$index'!= null)?'photo$index': ''),
-                          )),
+                      leading: leading(
+                          snapshot.data.documents[index]['user'].toString()),
                       title: Text(
                         model_payment.type_pay,
                         style: TextStyle(
