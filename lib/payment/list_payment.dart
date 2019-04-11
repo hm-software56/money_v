@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:moneyv3/home.dart';
 import 'package:moneyv3/models/model_payment.dart';
 import 'package:moneyv3/models/model_user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ListPayment extends StatefulWidget {
   @override
@@ -14,67 +15,52 @@ class _ListPaymentState extends State<ListPayment> {
   ModelPayment model_payment = ModelPayment();
   ModelUser model_user = ModelUser();
 
-  void selectType(doc_id) async {
-    DocumentSnapshot snapshot =
-        await Firestore.instance.collection('type_pay').document(doc_id).get();
-    if (mounted) {
-      setState(() {
-        model_payment.type_pay = snapshot['name'];
-      });
-    }
-  }
-
-  Future selectUser(user_id) async {
-    DocumentSnapshot snapshot =
-        await Firestore.instance.collection('user').document(user_id).get();
-    //return snapshot['photo'];
-    if (mounted) {
-      setState(() {
-        model_user.photo = snapshot['photo'];
-      });
-    }
-  }
-
   Future selectbycondition() async {
-    CollectionReference collectionReference =
-        await Firestore.instance.collection('payment').reference();
-    collectionReference.snapshots().listen((data) {
-      data.documents.forEach((talk) {
-        var docRef = Firestore.instance
-            .collection('user')
-            .document(talk['user'].toString());
-        docRef.get().then((doc) {
-          var data = doc.documentID + ":" + doc.data['photo'];
-          model_payment.lsituser.add(data);
-          print(model_payment.lsituser);
-
-          setState(() {
-            model_payment.lsituser = model_payment.lsituser;
-          });
-        });
-        // print(talk.documentID + ': ' + talk['user']);
-      });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      model_payment.user_id = prefs.get('token');
     });
 
-    print(model_payment.lsituser);
+    Firestore.instance
+        .collection('payment')
+        .orderBy("date", descending: true)
+        .snapshots()
+        .listen((data) {
+      data.documents.forEach((talk) async {
+        DocumentSnapshot snapshot = await Firestore.instance
+            .collection('user')
+            .document(talk['user'].toString())
+            .get();
+        DocumentSnapshot payment_type = await Firestore.instance
+            .collection('type_pay')
+            .document(talk['type_pay_id'].toString())
+            .get();
+        Map<String, dynamic> photo = {talk.documentID: snapshot['photo']};
+        Map<String, dynamic> typename = {talk.documentID: payment_type['name']};
+        if (mounted) {
+          setState(() {
+            model_payment.listuserphoto.addAll(photo);
+            model_payment.listtypename.addAll(typename);
+          });
+        }
+      });
+    });
+  }
+
+  void createpayment() {
+    Firestore.instance.collection("payment").add({
+      'amount': 60000,
+      'date': '20-09-2019',
+      'description': 'ddddwww',
+      'type_pay_id': "i4fHXCWznQ0b9fQgGXNp",
+      'user': "zkw0BdSqCQNFAC81WJYJ",
+    });
   }
 
   @override
   void initState() {
     super.initState();
-   // selectbycondition();
-  }
-var list = await Future.wait();
-  leading(user_id) async {
-    DocumentSnapshot snapshot =
-        await Firestore.instance.collection('bandnames').document(user_id).get();
-     SizedBox(
-        width: 60.0,
-        height: 60.0,
-        child: CircleAvatar(
-          backgroundImage:
-              NetworkImage((snapshot['photo']!= null) ? snapshot['photo']: ''),
-        ));
+    selectbycondition();
   }
 
   Widget build(BuildContext context) {
@@ -92,7 +78,10 @@ var list = await Future.wait();
         padding: const EdgeInsets.all(5.0),
         alignment: Alignment.center,
         child: StreamBuilder(
-            stream: Firestore.instance.collection('payment').snapshots(),
+            stream: Firestore.instance
+                .collection('payment')
+                .orderBy("date", descending: true)
+                .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) return Text('Laoding..........');
               return ListView.builder(
@@ -100,25 +89,23 @@ var list = await Future.wait();
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, index) {
                     final formatter = new NumberFormat("#,###.00");
-                    // selectType(snapshot.data.documents[index]['type_pay_id']
-                    //    .toString());
-
-                    // selectUser(snapshot.data.documents[index]['user']
-                    //   .toString());
-                    /*  var 'photo$index';
-                    var docRef= Firestore.instance.collection('user').document(snapshot.data.documents[index]['user'].toString());
-                    docRef.get().then((doc){
-                      setState(() {
-                         'photo$index'= doc.data['photo'];
-                        });
-                    });
-                    print('photo$index');*/
-                    //print(model_user.photo);
+                    var photo = (model_payment.listuserphoto.isNotEmpty)
+                        ? model_payment.listuserphoto[
+                            snapshot.data.documents[index].documentID]
+                        : "";
+                    var type = (model_payment.listtypename.isNotEmpty)
+                        ? model_payment.listtypename[
+                            snapshot.data.documents[index].documentID]
+                        : "";
                     return ListTile(
-                      leading: leading(
-                          snapshot.data.documents[index]['user'].toString()),
+                      leading: SizedBox(
+                          width: 60.0,
+                          height: 60.0,
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage('$photo'),
+                          )),
                       title: Text(
-                        model_payment.type_pay,
+                        type,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14.0,
@@ -141,28 +128,31 @@ var list = await Future.wait();
                             maxLines: 2,
                           ),
                           Text(
-                            snapshot.data.documents[index]['date'],
+                            snapshot.data.documents[index]['date'].toString(),
                           ),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.remove_circle,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          (model_payment.user_id ==
+                                  snapshot.data.documents[index]['user'])
+                              ? Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: IconButton(
+                                        icon: Icon(
+                                          Icons.edit,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: IconButton(
+                                        icon: Icon(
+                                          Icons.remove_circle,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Text(''),
                           Divider()
                         ],
                       ),
@@ -178,6 +168,7 @@ var list = await Future.wait();
           backgroundColor: Colors.red,
           child: new Icon(Icons.add_circle),
           onPressed: () {
+            createpayment();
             /*Navigator.push(
                 context,
                 MaterialPageRoute(

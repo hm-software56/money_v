@@ -63,6 +63,7 @@ class _LoginState extends State<Login> {
           prefs.setString('type', talk['type']);
           prefs.setString('first_name', talk['first_name']);
           prefs.setString('last_name', talk['last_name']);
+          prefs.setString('photo', talk['photo']);
           //print(talk.documentID + ': ' + talk['first_name']);
           Navigator.push(
             context,
