@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:moneyv3/home.dart';
 import 'package:moneyv3/models/model_payment.dart';
 import 'package:moneyv3/models/model_user.dart';
+import 'package:moneyv3/payment/form_payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ListPayment extends StatefulWidget {
@@ -47,6 +48,7 @@ class _ListPaymentState extends State<ListPayment> {
     });
   }
 
+/*================  create ===============*/
   void createpayment() {
     Firestore.instance.collection("payment").add({
       'amount': 60000,
@@ -55,6 +57,50 @@ class _ListPaymentState extends State<ListPayment> {
       'type_pay_id': "i4fHXCWznQ0b9fQgGXNp",
       'user': "zkw0BdSqCQNFAC81WJYJ",
     });
+  }
+
+/*========================== delete =================*/
+  void delpayment(id) {
+    Firestore.instance.collection("payment").document(id).delete();
+    selectbycondition();
+  }
+
+/*====================Cormfirt delete ====================*/
+  void delcomfirm(title, detail, id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+          title: Center(child: title),
+          content: Container(
+            height: 30,
+            child: Center(
+              child: Text("${detail}"),
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton.icon(
+              icon: Icon(Icons.thumb_up),
+              label: new Text("Yes"),
+              onPressed:  () {
+                delpayment(id);
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton.icon(
+              icon: Icon(Icons.thumb_down),
+              label: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -148,6 +194,17 @@ class _ListPaymentState extends State<ListPayment> {
                                           Icons.remove_circle,
                                           color: Colors.red,
                                         ),
+                                        onPressed: () {
+                                          delcomfirm(
+                                              Icon(
+                                                Icons.warning,
+                                                color: Colors.red,
+                                              ),
+                                              'ລຶບ​ລາຍ​ການນີ້​ບໍ່.?',
+                                              snapshot.data.documents[index]
+                                                  .documentID);
+                                          // delpayment(snapshot.data.documents[index].documentID);
+                                        },
                                       ),
                                     ),
                                   ],
@@ -168,18 +225,12 @@ class _ListPaymentState extends State<ListPayment> {
           backgroundColor: Colors.red,
           child: new Icon(Icons.add_circle),
           onPressed: () {
-            createpayment();
-            /*Navigator.push(
+            Navigator.push(
                 context,
                 MaterialPageRoute(
                     fullscreenDialog: true,
                     builder: (context) => FormPayment(null)));
-                    */
-            /* Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (context) => FormPayment()));*/
+           
           }),
     );
   }
