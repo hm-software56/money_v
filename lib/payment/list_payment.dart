@@ -48,7 +48,6 @@ class _ListPaymentState extends State<ListPayment> {
     });
   }
 
-
 /*========================== delete =================*/
   void delpayment(id) {
     Firestore.instance.collection("payment").document(id).delete();
@@ -75,7 +74,7 @@ class _ListPaymentState extends State<ListPayment> {
             FlatButton.icon(
               icon: Icon(Icons.thumb_up),
               label: new Text("Yes"),
-              onPressed:  () {
+              onPressed: () {
                 delpayment(id);
                 Navigator.of(context).pop();
               },
@@ -119,96 +118,112 @@ class _ListPaymentState extends State<ListPayment> {
                 .orderBy("date", descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return Text('Laoding..........');
-              return ListView.builder(
-                  //itemExtent: 50,
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, index) {
-                    final formatter = new NumberFormat("#,###.00");
-                    var photo = (model_payment.listuserphoto.isNotEmpty)
-                        ? model_payment.listuserphoto[
-                            snapshot.data.documents[index].documentID]
-                        : "";
-                    var type = (model_payment.listtypename.isNotEmpty)
-                        ? model_payment.listtypename[
-                            snapshot.data.documents[index].documentID]
-                        : "";
-                    return ListTile(
-                      leading: SizedBox(
-                          width: 60.0,
-                          height: 60.0,
-                          child: CircleAvatar(
-                            backgroundImage: NetworkImage('$photo'),
-                          )),
-                      title: Text(
-                        type,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
-                            color: Colors.black),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            formatter.format(int.parse(snapshot
-                                    .data.documents[index]['amount']
-                                    .toString())) +
-                                ' ກີບ',
-                            style: TextStyle(color: Colors.red),
+              if (!snapshot.hasData)
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              return (model_payment.listuserphoto.isEmpty)
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : ListView.builder(
+                      //itemExtent: 50,
+                      itemCount: snapshot.data.documents.length,
+                      itemBuilder: (context, index) {
+                        final formatter = new NumberFormat("#,###.00");
+                        var photo = (model_payment
+                                .listuserphoto[
+                                    snapshot.data.documents[index].documentID]
+                                .isNotEmpty)
+                            ? model_payment.listuserphoto[
+                                snapshot.data.documents[index].documentID]
+                            : "";
+                        var type = (model_payment
+                                .listtypename[
+                                    snapshot.data.documents[index].documentID]
+                                .isNotEmpty)
+                            ? model_payment.listtypename[
+                                snapshot.data.documents[index].documentID]
+                            : "";
+                        return ListTile(
+                          leading: SizedBox(
+                              width: 60.0,
+                              height: 60.0,
+                              child: CircleAvatar(
+                                backgroundImage: NetworkImage('$photo'),
+                              )),
+                          title: Text(
+                            type,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.0,
+                                color: Colors.black),
                           ),
-                          Text(
-                            snapshot.data.documents[index]['description'],
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            maxLines: 2,
-                          ),
-                          Text(
-                            snapshot.data.documents[index]['date'].toString(),
-                          ),
-                          (model_payment.user_id ==
-                                  snapshot.data.documents[index]['user'])
-                              ? Row(
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: IconButton(
-                                        icon: Icon(
-                                          Icons.edit,
-                                          color: Colors.red,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                formatter.format(int.parse(snapshot
+                                        .data.documents[index]['amount']
+                                        .toString())) +
+                                    ' ກີບ',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              Text(
+                                snapshot.data.documents[index]['description']
+                                    .toString(),
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                maxLines: 2,
+                              ),
+                              Text(
+                                snapshot.data.documents[index]['date']
+                                    .toString(),
+                              ),
+                              (model_payment.user_id ==
+                                      snapshot.data.documents[index]['user']
+                                          .toString())
+                                  ? Row(
+                                      children: <Widget>[
+                                        Expanded(
+                                          child: IconButton(
+                                            icon: Icon(
+                                              Icons.edit,
+                                              color: Colors.red,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: IconButton(
-                                        icon: Icon(
-                                          Icons.remove_circle,
-                                          color: Colors.red,
+                                        Expanded(
+                                          child: IconButton(
+                                            icon: Icon(
+                                              Icons.remove_circle,
+                                              color: Colors.red,
+                                            ),
+                                            onPressed: () {
+                                              delcomfirm(
+                                                  Icon(
+                                                    Icons.warning,
+                                                    color: Colors.red,
+                                                  ),
+                                                  'ລຶບ​ລາຍ​ການນີ້​ບໍ່.?',
+                                                  snapshot.data.documents[index]
+                                                      .documentID.toString());
+                                              // delpayment(snapshot.data.documents[index].documentID);
+                                            },
+                                          ),
                                         ),
-                                        onPressed: () {
-                                          delcomfirm(
-                                              Icon(
-                                                Icons.warning,
-                                                color: Colors.red,
-                                              ),
-                                              'ລຶບ​ລາຍ​ການນີ້​ບໍ່.?',
-                                              snapshot.data.documents[index]
-                                                  .documentID);
-                                          // delpayment(snapshot.data.documents[index].documentID);
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Text(''),
-                          Divider()
-                        ],
-                      ),
-                      onTap: () {
-                        //print(document.documentID);
-                        //uploadPic();
-                      },
-                    );
-                  });
+                                      ],
+                                    )
+                                  : Text(''),
+                              Divider()
+                            ],
+                          ),
+                          onTap: () {
+                            //print(document.documentID);
+                            //uploadPic();
+                          },
+                        );
+                      });
             }),
       ),
       floatingActionButton: new FloatingActionButton(
@@ -220,7 +235,6 @@ class _ListPaymentState extends State<ListPayment> {
                 MaterialPageRoute(
                     fullscreenDialog: true,
                     builder: (context) => FormPayment(null)));
-           
           }),
     );
   }
