@@ -10,4 +10,6 @@ class ModelPayment{
   var description=TextEditingController();
   var type_pay_id=TextEditingController();
   var user=TextEditingController();
+  var type_name;
+  var type_id;
 }

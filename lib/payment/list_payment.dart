@@ -48,16 +48,6 @@ class _ListPaymentState extends State<ListPayment> {
     });
   }
 
-/*================  create ===============*/
-  void createpayment() {
-    Firestore.instance.collection("payment").add({
-      'amount': 60000,
-      'date': '20-09-2019',
-      'description': 'ddddwww',
-      'type_pay_id': "i4fHXCWznQ0b9fQgGXNp",
-      'user': "zkw0BdSqCQNFAC81WJYJ",
-    });
-  }
 
 /*========================== delete =================*/
   void delpayment(id) {
