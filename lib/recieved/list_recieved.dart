@@ -2,28 +2,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moneyv3/home.dart';
-import 'package:moneyv3/models/model_payment.dart';
+import 'package:moneyv3/models/model_recieved.dart';
 import 'package:moneyv3/models/model_user.dart';
 import 'package:moneyv3/payment/form_payment.dart';
+import 'package:moneyv3/recieved/form_recieved.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ListPayment extends StatefulWidget {
+class ListRecieved extends StatefulWidget {
   @override
-  _ListPaymentState createState() => _ListPaymentState();
+  _ListRecievedState createState() => _ListRecievedState();
 }
 
-class _ListPaymentState extends State<ListPayment> {
-  ModelPayment model_payment = ModelPayment();
+class _ListRecievedState extends State<ListRecieved> {
+  @override
+  ModelRecieved model_recieved=ModelRecieved();
   ModelUser model_user = ModelUser();
 
   Future selectbycondition() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      model_payment.user_id = prefs.get('token');
+      model_recieved.user_id = prefs.get('token');
     });
 
     Firestore.instance
-        .collection('payment')
+        .collection('recieved')
         .orderBy("sort", descending: true)
         .limit(50)
         .snapshots()
@@ -31,26 +33,27 @@ class _ListPaymentState extends State<ListPayment> {
       data.documents.forEach((talk) async {
         DocumentSnapshot snapshot = await Firestore.instance
             .collection('user')
-            .document(talk['user'].toString())
+            .document(talk['user_id'].toString())
             .get();
-        DocumentSnapshot payment_type = await Firestore.instance
-            .collection('type_pay')
-            .document(talk['type_pay_id'].toString())
+        DocumentSnapshot recieved_type = await Firestore.instance
+            .collection('tye_receive')
+            .document(talk['tye_receive_id'].toString())
             .get();
         Map<String, dynamic> photo = {talk.documentID: snapshot['photo']};
-        Map<String, dynamic> typename = {talk.documentID: payment_type['name']};
+        Map<String, dynamic> typename = {talk.documentID: recieved_type['name']};
         if (mounted) {
           setState(() {
-            model_payment.listuserphoto.addAll(photo);
-            model_payment.listtypename.addAll(typename);
+            model_recieved.listuserphoto.addAll(photo);
+            model_recieved.listtypename.addAll(typename);
           });
         }
       });
     });
   }
+
 /*========================== delete =================*/
   void delpayment(id) {
-    Firestore.instance.collection("payment").document(id).delete();
+    Firestore.instance.collection("recieved").document(id).delete();
     selectbycondition();
   }
 
@@ -99,9 +102,10 @@ class _ListPaymentState extends State<ListPayment> {
   }
 
   Widget build(BuildContext context) {
+    print(model_recieved.listuserphoto);
     return Scaffold(
       appBar: AppBar(
-        title: Text('ລາຍ​ການ​ລາຍ​ຈ່າຍ​ທັງ​ໝົດ'),
+        title: Text('ລາຍ​ການ​ລາຍ​ຮັບ​ທັງ​ໝົດ'),
         leading: new IconButton(
             icon: new Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
@@ -114,27 +118,27 @@ class _ListPaymentState extends State<ListPayment> {
         alignment: Alignment.center,
         child: StreamBuilder(
             stream: Firestore.instance
-                .collection('payment')
+                .collection('recieved')
                 .orderBy("sort", descending: true)
                 .limit(50)
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return Text('ກຳ​ລັງ​ໂຫລດ..........');
+              if (!snapshot.hasData) return Text('ກຳ​ລັງ​ໂຫລດ..........'); 
               return ListView.builder(
                   //itemExtent: 50,
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, index) {
                     final formatter = new NumberFormat("#,###.00");
-                    var photo = (model_payment.listuserphoto[
+                    var photo = (model_recieved.listuserphoto[
                                 snapshot.data.documents[index].documentID] !=
                             null)
-                        ? model_payment.listuserphoto[
+                        ? model_recieved.listuserphoto[
                             snapshot.data.documents[index].documentID]
                         : "";
-                    var type = (model_payment.listtypename[
+                    var type = (model_recieved.listtypename[
                                 snapshot.data.documents[index].documentID] !=
                             null)
-                        ? model_payment.listtypename[
+                        ? model_recieved.listtypename[
                             snapshot.data.documents[index].documentID]
                         : "";
                     return ListTile(
@@ -170,8 +174,8 @@ class _ListPaymentState extends State<ListPayment> {
                           Text(
                             snapshot.data.documents[index]['date'].toString(),
                           ),
-                          (model_payment.user_id ==
-                                  snapshot.data.documents[index]['user'])
+                          (model_recieved.user_id ==
+                                  snapshot.data.documents[index]['user_id'])
                               ? Row(
                                   children: <Widget>[
                                     Expanded(
@@ -186,7 +190,7 @@ class _ListPaymentState extends State<ListPayment> {
                                               MaterialPageRoute(
                                                   fullscreenDialog: true,
                                                   builder: (context) =>
-                                                      FormPayment(snapshot
+                                                      FormRecieved(snapshot
                                                           .data
                                                           .documents[index]
                                                           .documentID)));
@@ -208,8 +212,7 @@ class _ListPaymentState extends State<ListPayment> {
                                               'ລຶບ​ລາຍ​ການນີ້​ບໍ່.?',
                                               snapshot.data.documents[index]
                                                   .documentID);
-                                          // delpayment(snapshot.data.documents[index].documentID);
-                                        },
+                                           },
                                       ),
                                     ),
                                   ],
@@ -234,7 +237,7 @@ class _ListPaymentState extends State<ListPayment> {
                 context,
                 MaterialPageRoute(
                     fullscreenDialog: true,
-                    builder: (context) => FormPayment(null)));
+                    builder: (context) => FormRecieved(null)));
           }),
     );
   }

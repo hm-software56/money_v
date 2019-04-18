@@ -2,21 +2,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moneyv3/models/model_payment.dart';
+import 'package:moneyv3/models/model_recieved.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:date_format/date_format.dart';
 
-class FormPayment extends StatefulWidget {
+class FormRecieved extends StatefulWidget {
   var id;
-  FormPayment(this.id);
+  FormRecieved(this.id);
   @override
-  _FormPaymentState createState() => _FormPaymentState(this.id);
+  _FormRecievedState createState() => _FormRecievedState(this.id);
 }
 
-class _FormPaymentState extends State<FormPayment> {
+class _FormRecievedState extends State<FormRecieved> {
   var id;
-  _FormPaymentState(this.id);
+  _FormRecievedState(this.id);
   final _formKey = GlobalKey<FormState>();
-  ModelPayment modelPayment = ModelPayment();
+  ModelRecieved modelRecieved = ModelRecieved();
 
   /*===================== Select date picker =================*/
   Future _chooseDate(BuildContext context, String initialDateString) async {
@@ -35,7 +36,7 @@ class _FormPaymentState extends State<FormPayment> {
     if (result == null) return;
 
     setState(() {
-      modelPayment.date.text = new DateFormat('yyyy-MM-dd').format(result);
+      modelRecieved.date.text = new DateFormat('yyyy-MM-dd').format(result);
     });
   }
 
@@ -54,9 +55,9 @@ class _FormPaymentState extends State<FormPayment> {
   Future listtypepay() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      modelPayment.user_id = prefs.get('token');
+      modelRecieved.user_id = prefs.get('token');
     });
-    Firestore.instance.collection('type_pay').where('status',isEqualTo:true).snapshots().listen((data) {
+    Firestore.instance.collection('tye_receive').where('status',isEqualTo:true).snapshots().listen((data) {
       data.documents.forEach((talk) {
         if (mounted) {
           setState(() {
@@ -70,21 +71,20 @@ class _FormPaymentState extends State<FormPayment> {
 
 /*================  create payment ===============*/
   void createpayment() {
-    var amount = modelPayment.amount.text
-        .substring(0, modelPayment.amount.text.length - 3);
-    var y = modelPayment.date.text.substring(0,modelPayment.date.text.length - 6);
-    var m = modelPayment.date.text.substring(5,modelPayment.date.text.length - 3);
-    var d = modelPayment.date.text.substring(8,modelPayment.date.text.length - 0);
+    var amount = modelRecieved.amount.text
+        .substring(0, modelRecieved.amount.text.length - 3);
+    var y = modelRecieved.date.text.substring(0,modelRecieved.date.text.length - 6);
+    var m = modelRecieved.date.text.substring(5,modelRecieved.date.text.length - 3);
+    var d = modelRecieved.date.text.substring(8,modelRecieved.date.text.length - 0);
        
     var date=d+'-'+m+'-'+y;
     int sort=int.parse(y+''+m+''+d);
-
-    Firestore.instance.collection("payment").add({
+    Firestore.instance.collection("recieved").add({
       'amount': int.parse(amount.replaceAll(',', '')),
       'date':date,
-      'description': modelPayment.description.text,
-      'type_pay_id': modelPayment.type_id,
-      'user': modelPayment.user_id,
+      'description': modelRecieved.description.text,
+      'tye_receive_id': modelRecieved.type_id,
+      'user_id': modelRecieved.user_id,
       'sort':sort,
     });
     Navigator.of(context).pop();
@@ -92,21 +92,19 @@ class _FormPaymentState extends State<FormPayment> {
 
   /*===================== update payment =================*/
   void updatepayment() {
-    var amount = modelPayment.amount.text
-        .substring(0, modelPayment.amount.text.length - 3);
-    var y = modelPayment.date.text.substring(0,modelPayment.date.text.length - 6);
-    var m = modelPayment.date.text.substring(5,modelPayment.date.text.length - 3);
-    var d = modelPayment.date.text.substring(8,modelPayment.date.text.length - 0);
-       
+    var amount = modelRecieved.amount.text
+        .substring(0, modelRecieved.amount.text.length - 3);
+    var y = modelRecieved.date.text.substring(0,modelRecieved.date.text.length - 6);
+    var m = modelRecieved.date.text.substring(5,modelRecieved.date.text.length - 3);
+    var d = modelRecieved.date.text.substring(8,modelRecieved.date.text.length - 0);
     var date=d+'-'+m+'-'+y;
     int sort=int.parse(y+''+m+''+d);
-
-    Firestore.instance.collection("payment").document(this.id).updateData({
+    Firestore.instance.collection("recieved").document(this.id).updateData({
       'amount': int.parse(amount.replaceAll(',', '')),
       'date': date,
-      'description': modelPayment.description.text,
-      'type_pay_id': modelPayment.type_id,
-      'user': modelPayment.user_id,
+      'description': modelRecieved.description.text,
+      'tye_receive_id': modelRecieved.type_id,
+      'user_id': modelRecieved.user_id,
       'sort':sort,
     });
     Navigator.of(context).pop();
@@ -115,21 +113,21 @@ class _FormPaymentState extends State<FormPayment> {
   /*===================== load data update ==================*/
   void loaddataupdate() async {
     if (this.id != null) {
-      DocumentSnapshot payment = await Firestore.instance
-          .collection('payment')
+      DocumentSnapshot recieved = await Firestore.instance
+          .collection('recieved')
           .document(this.id)
           .get();
-      DocumentSnapshot payment_type = await Firestore.instance
-          .collection('type_pay')
-          .document(payment['type_pay_id'].toString())
+      DocumentSnapshot recieved_type = await Firestore.instance
+          .collection('tye_receive')
+          .document(recieved['tye_receive_id'].toString())
           .get();
       setState(() {
-        modelPayment.amount.text = payment['amount'].toString() + '00';
-        modelPayment.date.text =
-            payment['date'].toString().replaceAll('-', '/');
-        modelPayment.description.text = payment['description'].toString();
-        modelPayment.type_pay_id.text = payment_type['name'];
-        modelPayment.type_id = payment['type_pay_id'];
+        modelRecieved.amount.text = recieved['amount'].toString() + '00';
+        modelRecieved.date.text =
+            recieved['date'].toString().replaceAll('-', '/');
+        modelRecieved.description.text = recieved['description'].toString();
+        modelRecieved.tye_receive_id.text = recieved_type['name'];
+        modelRecieved.type_id = recieved['tye_receive_id'];
       });
     }
   }
@@ -145,7 +143,7 @@ class _FormPaymentState extends State<FormPayment> {
     return Scaffold(
       appBar: AppBar(
         title: Center(
-          child: Text('​ປ້ອນ​ລາຍ​ຈ່າຍ'),
+          child: Text('​ປ້ອນ​ລາຍ​ຮັບ'),
         ),
       ),
       body: Container(
@@ -156,23 +154,23 @@ class _FormPaymentState extends State<FormPayment> {
             children: <Widget>[
               InputDecorator(
                 decoration: InputDecoration(
-                  errorText: (modelPayment.type_pay_id.text.isEmpty)
-                      ? "ທ່ານ​ຕ້ອງເລືອກ​ປະ​ເພດ​ລາຍ​ຈ່າຍ"
+                  errorText: (modelRecieved.tye_receive_id.text.isEmpty)
+                      ? "ທ່ານ​ຕ້ອງເລືອກ​ປະ​ເພດ​ລາຍ​ຮັບ"
                       : null,
-                  labelText: 'ເລືອກ​ປະ​ເພດ​ລາຍ​ຈ່າຍ',
+                  labelText: 'ເລືອກ​ປະ​ເພດ​ລາຍ​ຮັບ',
                   contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0)),
                 ),
-                isEmpty: modelPayment.type_pay_id == null,
+                isEmpty: modelRecieved.tye_receive_id == null,
                 child: new DropdownButtonHideUnderline(
                   child: new DropdownButton<String>(
-                    value: modelPayment.type_pay_id.text,
+                    value: modelRecieved.tye_receive_id.text,
                     isDense: true,
                     onChanged: (String newValue) {
                       setState(() {
-                        modelPayment.type_pay_id.text = newValue;
-                        modelPayment.type_id = listtype[newValue];
+                        modelRecieved.tye_receive_id.text = newValue;
+                        modelRecieved.type_id = listtype[newValue];
                       });
                     },
                     items: listtypename.map((value) {
@@ -186,7 +184,7 @@ class _FormPaymentState extends State<FormPayment> {
               ),
               SizedBox(height: 20.0),
               TextFormField(
-                controller: modelPayment.amount,
+                controller: modelRecieved.amount,
                 validator: (value) {
                   if (value.isEmpty || value == '0.00') {
                     return "ທ່ານ​ຕ້ອງ​ປ້​ອນ​ຈຳ​ນວນ​ເງີນ";
@@ -194,7 +192,7 @@ class _FormPaymentState extends State<FormPayment> {
                 },
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: 'ຈຳນວນ​ເງີນຈ່າຍ',
+                  labelText: 'ຈຳນວນ​ເງີນຮັບ',
                   contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0)),
@@ -202,10 +200,10 @@ class _FormPaymentState extends State<FormPayment> {
               ),
               SizedBox(height: 20.0),
               TextFormField(
-                controller: modelPayment.description,
+                controller: modelRecieved.description,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  labelText: 'ອະ​ທີ​ບາຍ​ຈ່າຍ​ຍັງ',
+                  labelText: 'ອະ​ທີ​ບາຍ​ຮັບຍັງ',
                   contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0)),
@@ -213,18 +211,18 @@ class _FormPaymentState extends State<FormPayment> {
               ),
               SizedBox(height: 20.0),
               InkWell(
-                onTap: () => _chooseDate(context, modelPayment.date.text),
+                onTap: () => _chooseDate(context, modelRecieved.date.text),
                 child: IgnorePointer(
                   child: TextFormField(
                     // validator: widget.validator,
-                    controller: modelPayment.date,
+                    controller: modelRecieved.date,
                     validator: (value) {
                       if (value.isEmpty) {
                         return "ທ່ານ​ຕ້ອງ​ເລືອກວັນ​ທີ່";
                       }
                     },
                     decoration: InputDecoration(
-                      labelText: 'ວັນ​ທີ່​ຈ່າຍ',
+                      labelText: 'ວັນ​ທີ່​ຮັບ',
                       contentPadding:
                           EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(

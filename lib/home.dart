@@ -8,6 +8,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:moneyv3/models/model_user.dart';
 import 'package:moneyv3/payment/list_payment.dart';
+import 'package:moneyv3/recieved/list_recieved.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -283,30 +284,12 @@ class _HomeState extends State<Home> {
             ),
             trailing: Icon(Icons.accessible),
             onTap: () {
-              // Navigator.of(context).pushNamed('/listhouseuser');
-             // Navigator.of(context).pushNamed('/recive');
+              Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => ListRecieved()));
             },
           ),
           Divider(),
-          ListTile(
-            leading: Icon(
-              Icons.local_taxi,
-              color: Colors.redAccent,
-            ),
-            title: Text(
-              'ຈັດ​ການ​ເງີນ​​ຈ່າຍ​​ຄ່າ​ລົດ',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            subtitle: Text(
-              '​ປ້ອນ​ຈຳ​ນວນເງີນ​ທີ່​​​ຄ່າ​ລົດ​ແຕ່​ລະ​ມເດືອນ',
-              style: TextStyle(fontSize: 12.0),
-            ),
-            trailing: Icon(Icons.local_taxi),
-            onTap: () {
-             /// Navigator.of(context).pushNamed('/daocar');
-            },
-          ),
-          Divider(),
+          
           ListTile(
             leading: Icon(
               Icons.bubble_chart,
